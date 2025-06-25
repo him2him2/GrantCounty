@@ -5,12 +5,9 @@ from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIResponsesModel, OpenAIResponsesModelSettings
 from pydantic_ai.providers.openai import OpenAIProvider
 
-import logging
-from logging import getLogger
+from streamlit.logger import get_logger
 
-app_logger = getLogger()
-app_logger.addHandler(logging.StreamHandler())
-app_logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 API_KEY = st.secrets['API_KEY']  # Replace with your actual API key
 assistant_id = st.secrets['assistant_id']
@@ -54,7 +51,7 @@ if prompt := st.chat_input("Who was Moses Bradford?"):
 
             )
             result = agent.run_sync(prompt)
-            app_logger.info(f"\n<========\nprompt: {prompt}\nresult: {result.output}\n========>\n")
+            logger.info(f"\n<========\nprompt: {prompt}\nresult: {result.output}\n========>\n")
 
 
             # print(json.dumps(response.output[1]))
