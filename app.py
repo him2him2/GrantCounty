@@ -8,7 +8,7 @@ from pydantic_ai.providers.openai import OpenAIProvider
 API_KEY = st.secrets['API_KEY']  # Replace with your actual API key
 assistant_id = st.secrets['assistant_id']
 AI_MODEL = st.secrets['ai_model']
-
+user_message = "Who was Moses Bradford?"
 instruction = st.secrets['instructions']
 
 st.title("Grant County Indiana History")
@@ -47,7 +47,8 @@ if prompt := st.chat_input("Who was Moses Bradford?"):
 
             )
             result = agent.run_sync(prompt)
-            print(result.output)
+            print(f"======\nprompt: {prompt}")
+            print(f"result: {result.output}")
 
             # print(json.dumps(response.output[1]))
 
