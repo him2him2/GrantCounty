@@ -56,5 +56,5 @@ if prompt := st.chat_input("Who was Moses Bradford?"):
 
             # print(json.dumps(response.output[1]))
 
-            st.markdown(result.output)
-            st.session_state.messages.append({"role": "assistant", "content": result.output})
+        st.markdown(result.output)
+        st.session_state.messages.append({"role": "assistant", "content": result.output})
