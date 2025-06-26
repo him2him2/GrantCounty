@@ -50,13 +50,17 @@ def check_password() -> bool:
     # Create a form container that can be removed
     login_container = st.empty()
     
-    with login_container:
-        password = st.text_input("During the beta testing period. Please enter password:", type="password")
+    with login_container.container():
+        st.subheader("Please Login")
+        st.write("During this testing period, we are restricting access to testers with a password.")
+        password = st.text_input("Please enter password:", type="password")
         if password:
             if hashlib.sha256(password.encode()).hexdigest() == config.password_hash:
                 st.session_state.authenticated = True
                 # Remove the login form
+
                 login_container.empty()
+
                 return True
             else:
                 st.error("Incorrect password. Please try again.")
