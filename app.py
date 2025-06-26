@@ -6,6 +6,7 @@ A Streamlit-based chat interface for historical queries about Grant County, Indi
 import asyncio
 import warnings
 from typing import Optional, Dict, List, Any
+import hashlib
 
 import streamlit as st
 from openai.types.responses import FileSearchTool
@@ -34,11 +35,37 @@ class Config:
         self.assistant_id: str = st.secrets['assistant_id']
         self.ai_model: str = st.secrets['ai_model']
         self.instruction: str = st.secrets['instructions']
-        self.vector_store_id: str = 'vs_6859f79bc33c8191ae9a961d6b98da9a'
+        self.vector_store_id: str = st.secrets['vector_store'][0]
+        # Add password hash to config - replace 'your_password_here' with actual password
+        self.password_hash: str = hashlib.sha256(st.secrets['password'].encode()).hexdigest()
+
+def check_password() -> bool:
+    """Implement password checking"""
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+
+    if st.session_state.authenticated:
+        return True
+
+    # Create a form container that can be removed
+    login_container = st.empty()
+    
+    with login_container:
+        password = st.text_input("During the beta testing period. Please enter password:", type="password")
+        if password:
+            if hashlib.sha256(password.encode()).hexdigest() == config.password_hash:
+                st.session_state.authenticated = True
+                # Remove the login form
+                login_container.empty()
+                return True
+            else:
+                st.error("Incorrect password. Please try again.")
+                return False
+    return False
 
 class ChatAgent:
     """Handles AI chat agent initialization and response streaming"""
-    
+
     def __init__(self, config: Config):
         """Initialize the chat agent with configuration"""
         self.config = config
@@ -76,10 +103,10 @@ class ChatAgent:
     async def stream_response(self, user_input: str) -> Optional[str]:
         """
         Stream the agent's response to a user input
-        
+
         Args:
             user_input: The user's question or prompt
-            
+
         Returns:
             The final response text or None if an error occurred
         """
@@ -93,7 +120,7 @@ class ChatAgent:
                         message_placeholder.markdown(message)
                         last_message = message
                         await asyncio.sleep(0.01)
-            
+
             return last_message
         except Exception as e:
             logger.error(f"Error in streaming response: {str(e)}")
@@ -102,10 +129,10 @@ class ChatAgent:
 def run_async(coro: Any) -> Any:
     """
     Utility function to run asynchronous code
-    
+
     Args:
         coro: The coroutine to run
-        
+
     Returns:
         The result of the coroutine
     """
@@ -130,6 +157,9 @@ def display_chat_history() -> None:
 
 def main() -> None:
     """Main application function"""
+    if not check_password():
+        return
+
     st.title("Grant County Indiana History")
     st.write(Config.WELCOME_MESSAGE)
 
